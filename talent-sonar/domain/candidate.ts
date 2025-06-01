@@ -1,10 +1,8 @@
-export type CandidateSource = 'employee' | 'silver_medalist';
-
-export interface CandidateProfile {
+export interface Candidate {
   id: string;
   name: string;
-  summary: string;        // Skills and experience
-  source: CandidateSource;
-  currentRole?: string;
-  metadata?: Record<string, any>;
+  email: string;
+  skills: string[];
+  experience: number; // Years of experience
+  education: string;
 }

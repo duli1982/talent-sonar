@@ -14,10 +14,9 @@ The project is organized into the following main directories:
     -   `data.ts`: Provides mock data for candidates and jobs, simulating a database or external API.
     -   `geminiClient.ts`: (Placeholder) Intended for integration with Google's Gemini API for advanced AI features.
     -   `vectorDb.ts`: (Placeholder) Intended for integration with a vector database for semantic search capabilities.
--   **`/pages`**: Contains the Next.js frontend pages and API routes.
-    -   `index.tsx`: The main page of the application, providing the UI for job selection, candidate matching, and outreach drafting.
-    -   `globals.css`: Global styles for the application.
-    -   `layout.tsx` & `page.tsx`: Appear to be remnants of a Next.js App Router setup within the `pages` directory. Typically, `_app.tsx` and `_document.tsx` are used for custom app/document structure in the Pages Router. This might need harmonization.
+-   **`/pages`**: Contains the Next.js frontend pages (using the Pages Router model) and API routes.
+    -   `index.tsx`: The main UI entry point of the application, providing the user interface for job selection, candidate matching, and outreach drafting.
+    -   `globals.css`: Global styles for the application. It's typically imported via a custom `_app.tsx` file (not yet created in this project) in a Pages Router setup.
     -   **`/api`**: Contains backend API route handlers.
         -   `hello.ts`: A sample Next.js API route.
         -   `match.ts`: API endpoint to get candidate matches for a given job ID.
@@ -126,7 +125,8 @@ The application exposes the following API endpoints under `/api`:
     -   Refine styling and component structure (e.g., move inline styles in `index.tsx` to CSS files/modules).
 -   **Testing**: Add unit tests for application logic and integration tests for API endpoints.
 -   **Deployment Configuration**: Prepare for deployment to platforms like Vercel or AWS.
--   **Harmonize Routing**: Clarify and unify the use of Next.js Pages Router vs. App Router elements. If Pages Router is intended, create `_app.tsx` and `_document.tsx`. If App Router, move relevant files to an `app/` directory.
+-   **Custom App/Document**: For a typical Pages Router setup, consider creating `pages/_app.tsx` (for global styles, layout components) and `pages/_document.tsx` (to customize server-rendered HTML structure).
+-   **Styling**: Move inline styles from `pages/index.tsx` into `pages/globals.css` or use CSS Modules for better organization.
 
 This README provides a starting point for understanding and working with the Talent Sonar project.
 ```
