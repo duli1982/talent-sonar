@@ -1,16 +1,21 @@
-import { Candidate } from './candidate';
-import { Job } from './job';
+import { CandidateProfile } from './candidate';
+import { JobDescription } from './job';
 
-export interface Match {
-  id: string;
-  candidate: Candidate;
-  job: Job;
-  score: number; // A numerical score representing the quality of the match
-  matchDate: Date;
+export interface MatchResult {
+  candidate: CandidateProfile;
+  score: number;
+  reason: string;
 }
 
-export interface MatchCreateDTO {
-  candidateId: string;
-  jobId: string;
-  score: number;
+// This is a stub matching function. Replace with AI/embeddings logic later!
+export function matchCandidatesToJob(
+  job: JobDescription,
+  candidates: CandidateProfile[]
+): MatchResult[] {
+  return candidates.map((cand) => {
+    // Simple: score is random, reason just echoes job title
+    const score = Math.random();
+    const reason = `Matched based on skills overlap with "${job.title}"`;
+    return { candidate: cand, score, reason };
+  }).sort((a, b) => b.score - a.score);
 }
