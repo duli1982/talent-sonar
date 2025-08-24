@@ -1,0 +1,1256 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import { Briefcase, Users, UserCheck, FileText, MessageSquare, Zap, Search, ChevronDown, ChevronUp, X, Star, Brain, Sparkles, Loader2, AlertTriangle, Target, TrendingUp, Lightbulb, Rocket, MapPin, CalendarDays, Award, BriefcaseBusiness, Gauge, Diamond, BellRing } from 'lucide-react';
+
+// Mock Data
+const mockJobs = [
+  { id: 'j1', title: 'Senior Software Engineer', department: 'Technology', location: 'Budapest, Hungary', type: 'Full-time', description: 'Join our dynamic tech team to build next-generation software solutions. Responsible for full software development lifecycle, from conception to deployment. Seeking a highly motivated individual with a passion for innovation. Key skills include React, Node.js, TypeScript, and AWS. Experience with microservices architecture and Agile methodologies is crucial.', requiredSkills: ['React', 'Node.js', 'TypeScript', 'AWS', 'Agile', 'Microservices'], postedDate: '2025-05-28' },
+  { id: 'j2', title: 'Marketing Manager', department: 'Marketing', location: 'Debrecen, Hungary', type: 'Full-time', description: 'Lead our marketing strategy and execution. Develop and implement innovative campaigns to drive brand awareness and customer acquisition. Strong analytical and leadership skills required. Expertise in digital marketing, SEO/SEM, content strategy, and social media marketing is essential.', requiredSkills: ['Digital Marketing', 'SEO/SEM', 'Content Strategy', 'Social Media Marketing', 'Analytics'], postedDate: '2025-05-25' },
+  { id: 'j3', title: 'HR Business Partner', department: 'Human Resources', location: 'Budapest, Hungary', type: 'Contract', description: 'Partner with business leaders to provide HR guidance and support. Focus on talent management, employee relations, and organizational development. Excellent communication and interpersonal skills are a must. Knowledge of Hungarian Labor Law is a plus.', requiredSkills: ['Employee Relations', 'Talent Management', 'HR Policies', 'Performance Management', 'Hungarian Labor Law'], postedDate: '2025-05-20' },
+];
+
+const mockInternalCandidates = [
+  { id: 'i1', name: 'Alice Wonderland', currentRole: 'Software Engineer', department: 'Technology', skills: ['React', 'JavaScript', 'Java', 'Problem Solving'], experienceYears: 3, performanceRating: 4, careerAspirations: 'Lead a development team, explore AI applications.', developmentGoals: "Improve TypeScript skills, learn about cloud deployment.", learningAgility: 4, isHiddenGem: false, email: 'alice.w@example.com', photoUrl: `https://placehold.co/100x100/E0E7FF/4F46E5?text=AW` },
+  { id: 'i2', name: 'Bob The Builder', currentRole: 'Junior Project Manager', department: 'Operations', skills: ['Project Coordination', 'Agile Methodologies', 'Communication', 'MS Project', 'Risk Management', 'Stakeholder Engagement'], experienceYears: 2, performanceRating: 5, careerAspirations: 'Move into a technical product owner role, interested in software development processes.', developmentGoals: "Understand basics of software architecture.", learningAgility: 5, isHiddenGem: true, email: 'bob.b@example.com', photoUrl: `https://placehold.co/100x100/D1FAE5/065F46?text=BB` },
+  { id: 'i3', name: 'Carol Danvers', currentRole: 'HR Specialist', department: 'Human Resources', skills: ['Recruitment', 'Onboarding', 'HR Admin', 'Communication'], experienceYears: 4, performanceRating: 4, careerAspirations: 'Specialize in Talent Development and Learning.', developmentGoals: "Gain expertise in learning management systems.", learningAgility: 3, isHiddenGem: false, email: 'carol.d@example.com', photoUrl: `https://placehold.co/100x100/FEF3C7/92400E?text=CD` },
+  { id: 'i4', name: 'Dexter Morgan', currentRole: 'Data Analyst', department: 'Analytics', skills: ['SQL', 'Python', 'Tableau', 'Data Visualization', 'Statistical Analysis'], experienceYears: 5, performanceRating: 5, careerAspirations: 'Lead data science projects, focus on predictive analytics.', developmentGoals: "Master machine learning algorithms.", learningAgility: 4, isHiddenGem: false, email: 'dexter.m@example.com', photoUrl: `https://placehold.co/100x100/E0F2FE/0891B2?text=DM` },
+  { id: 'i5', name: 'Eleanor Vance', currentRole: 'Finance Analyst', department: 'Finance', skills: ['Financial Modeling', 'Excel', 'SAP', 'Budgeting', 'Forecasting'], experienceYears: 4, performanceRating: 4, careerAspirations: 'Transition into a data-driven business intelligence role.', developmentGoals: 'Learn Python and data visualization tools like Tableau.', learningAgility: 5, isHiddenGem: true, email: 'eleanor.v@example.com', photoUrl: `https://placehold.co/100x100/E5E7EB/1F2937?text=EV`},
+  { id: 'i6', name: 'George Orwell', currentRole: 'Senior Marketing Specialist', department: 'Marketing', skills: ['Content Strategy', 'Email Marketing', 'Google Analytics', 'Social Media Marketing'], experienceYears: 6, performanceRating: 5, careerAspirations: 'Lead a marketing campaign team or move into product marketing.', developmentGoals: 'Improve skills in marketing automation platforms.', learningAgility: 4, isHiddenGem: false, email: 'george.o@example.com', photoUrl: `https://placehold.co/100x100/FEE2E2/991B1B?text=GO`},
+  { id: 'i7', name: 'Hanna Schmidt', currentRole: 'Junior Full-Stack Developer', department: 'Technology', skills: ['JavaScript', 'HTML/CSS', 'Node.js', 'Git'], experienceYears: 1, performanceRating: 4, careerAspirations: 'Become a Senior Software Engineer specializing in React.', developmentGoals: 'Master React and TypeScript.', learningAgility: 5, isHiddenGem: false, email: 'hanna.s@example.com', photoUrl: `https://placehold.co/100x100/D1FAE5/065F46?text=HS`},
+  { id: 'i8', name: 'Ian Malcolm', currentRole: 'Operations Lead', department: 'Operations', skills: ['Team Leadership', 'Process Improvement', 'Logistics', 'KPI Tracking'], experienceYears: 8, performanceRating: 4, careerAspirations: 'Move into a strategic operations or program management role.', developmentGoals: 'Gain certification in Six Sigma or PMP.', learningAgility: 3, isHiddenGem: false, email: 'ian.m@example.com', photoUrl: `https://placehold.co/100x100/F3E8FF/5B21B6?text=IM`},
+  { id: 'i9', name: 'Julia Child', currentRole: 'Customer Support Rep', department: 'Client Services', skills: ['Problem Solving', 'Communication', 'Zendesk', 'Technical Troubleshooting'], experienceYears: 3, performanceRating: 5, careerAspirations: 'Explore a role in Quality Assurance or as a Junior Business Analyst.', developmentGoals: 'Learn SQL basics and software testing methodologies.', learningAgility: 4, isHiddenGem: true, email: 'julia.c@example.com', photoUrl: `https://placehold.co/100x100/FEF9C3/854D0E?text=JC`},
+];
+
+const mockPastCandidates = [
+  { id: 'p1', name: 'David Copperfield', previousRoleAppliedFor: 'Software Developer Intern (2 years ago)', skills: ['Python', 'Django', 'SQL', 'Web Development Basics'], lastContactDate: '2023-05-10', notes: 'Good problem solver, lacked specific framework experience then. Showed strong learning aptitude.', isHiddenGem: false, email: 'david.c@example.com', photoUrl: `https://placehold.co/100x100/F3E8FF/6B21A8?text=DC`, lastSimulatedUpdateNote: null },
+  { id: 'p2', name: 'Eve Moneypenny', previousRoleAppliedFor: 'Executive Assistant (1.5 years ago)', skills: ['Organization', 'Scheduling', 'Communication', 'Office Management', 'Microsoft Office Suite', 'Event Planning'], lastContactDate: '2024-01-15', notes: 'Excellent communication, very organized. Considered for other roles. Expressed interest in project coordination and marketing support roles.', isHiddenGem: true, email: 'eve.m@example.com', photoUrl: `https://placehold.co/100x100/FCE7F3/9D174D?text=EM`, lastSimulatedUpdateNote: null },
+  { id: 'p3', name: 'Frank Castle', previousRoleAppliedFor: 'Security Analyst (1 year ago)', skills: ['Cybersecurity', 'Network Monitoring', 'Threat Analysis', 'Penetration Testing Basics'], lastContactDate: '2023-11-20', notes: 'Strong technical skills, cultural fit concerns for that specific team. Might be good for a more autonomous role.', isHiddenGem: false, email: 'frank.c@example.com', photoUrl: `https://placehold.co/100x100/E5E7EB/4B5563?text=FC`, lastSimulatedUpdateNote: null },
+  { id: 'p4', name: 'Karen Page', previousRoleAppliedFor: 'Data Scientist (9 months ago)', skills: ['Python', 'Machine Learning', 'TensorFlow', 'Scikit-learn', 'SQL'], lastContactDate: '2024-09-05', notes: 'Very strong candidate, was in final rounds but accepted another offer. Expressed continued interest in our company.', isHiddenGem: false, email: 'karen.p@example.com', photoUrl: `https://placehold.co/100x100/FDF2F8/8E24AA?text=KP`, lastSimulatedUpdateNote: null },
+  { id: 'p5', name: 'Leo Tolstoy', previousRoleAppliedFor: 'Project Manager (1.5 years ago)', skills: ['Project Planning', 'Budget Management', 'Agile', 'Team Leadership'], lastContactDate: '2024-01-20', notes: 'Great leadership skills from a non-tech industry (construction). Lacked specific software development lifecycle knowledge but was a fast learner.', isHiddenGem: true, email: 'leo.t@example.com', photoUrl: `https://placehold.co/100x100/E0F2FE/075985?text=LT`, lastSimulatedUpdateNote: null },
+  { id: 'p6', name: 'Maria Hill', previousRoleAppliedFor: 'Marketing Intern (1 year ago)', skills: ['Social Media', 'Content Creation', 'Canva'], lastContactDate: '2024-06-15', notes: 'Energetic intern with good ideas. Would be a strong candidate for a junior marketing coordinator role.', isHiddenGem: false, email: 'maria.h@example.com', photoUrl: `https://placehold.co/100x100/EBF5FF/1E88E5?text=MH`, lastSimulatedUpdateNote: null },
+  { id: 'p7', name: 'Nikola Tesla', previousRoleAppliedFor: 'QA Tester (8 months ago)', skills: ['Manual Testing', 'Jira', 'Test Cases', 'Regression Testing'], lastContactDate: '2024-10-01', notes: 'Very detail-oriented. The role was put on hold, but he would be a great hire if it re-opens.', isHiddenGem: false, email: 'nikola.t@example.com', photoUrl: `https://placehold.co/100x100/EDE7F6/5E35B1?text=NT`, lastSimulatedUpdateNote: null },
+  { id: 'p8', name: 'Olivia Pope', previousRoleAppliedFor: 'Sales Development Rep (2 years ago)', skills: ['Salesforce', 'Lead Generation', 'Cold Calling', 'Communication'], lastContactDate: '2023-07-30', notes: 'Excellent communicator, but wanted to move towards marketing. Could be a fit for a marketing operations role now.', isHiddenGem: true, email: 'olivia.p@example.com', photoUrl: `https://placehold.co/100x100/FFF8E1/F57F17?text=OP`, lastSimulatedUpdateNote: null },
+];
+
+const mockLearningResources = [
+    { id: "lr1", title: "Advanced React Techniques", type: "Online Course" },
+    { id: "lr2", title: "Node.js Masterclass", type: "Internal Workshop" },
+    { id: "lr3", title: "Cloud Architecture Fundamentals (AWS)", type: "Certification Program" },
+    { id: "lr4", title: "Project Management Pro", type: "Mentorship Program" },
+    { id: "lr5", title: "Effective Communication in Tech", type: "Soft Skills Seminar" },
+    { id: "lr6", title: "Data Analysis with Python", type: "Online Bootcamp" },
+];
+
+const API_KEY = ""; 
+
+const callGeminiAPI = async (prompt, isJsonOutput = false) => {
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
+  const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
+  if (isJsonOutput) {
+    payload.generationConfig = { responseMimeType: "application/json" };
+  }
+  try {
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!response.ok) {
+      const errorBody = await response.json();
+      console.error("Gemini API Error:", errorBody);
+      throw new Error(`Gemini API request failed: ${errorBody?.error?.message || response.status}`);
+    }
+    const result = await response.json();
+    if (result.candidates?.[0]?.content?.parts?.[0]?.text) {
+      return result.candidates[0].content.parts[0].text;
+    } else {
+      console.error("Unexpected Gemini API response structure:", result);
+      throw new Error('Invalid response structure from Gemini API.');
+    }
+  } catch (error) {
+    console.error("Error calling Gemini API:", error);
+    throw error;
+  }
+};
+
+const simulateAIMatching = (job, candidates) => {
+  if (!job || !candidates) return []; 
+  return candidates.map(candidate => {
+    let score = 30; 
+    let rationale = [];
+    candidate.skills.forEach(skill => {
+      if (job.requiredSkills.includes(skill)) {
+        score += 15;
+        rationale.push(`Matches skill: ${skill}`);
+      }
+    });
+    if (candidate.experienceYears && candidate.experienceYears > 2 && (job.title.includes('Senior') || job.title.includes('Manager'))) {
+        score +=10;
+        rationale.push(`Relevant experience level.`);
+    }
+    if (candidate.isHiddenGem) {
+        score += 10; 
+        rationale.push('Identified as a "Hidden Gem".');
+    }
+    if (candidate.careerAspirations && typeof candidate.careerAspirations === 'string' && candidate.careerAspirations.trim() !== "") {
+      const firstAspirationWord = candidate.careerAspirations.toLowerCase().split(" ")[0];
+      if (job.description.toLowerCase().includes(firstAspirationWord)) {
+          score += 5;
+          rationale.push(`Career aspirations align.`);
+      }
+    }
+    if (candidate.notes && (candidate.notes.toLowerCase().includes('strong') || candidate.notes.toLowerCase().includes('excellent'))) {
+        score += 5;
+        rationale.push(`Positive past notes.`);
+    }
+    score = Math.min(100, Math.max(0, score + Math.floor(Math.random() * 10)));
+    return { ...candidate, matchScore: score, matchRationale: rationale.length > 0 ? rationale.join(' ') : 'General alignment.' };
+  }).sort((a, b) => b.matchScore - a.matchScore);
+};
+
+
+const App = () => {
+  const [jobs, setJobs] = useState(mockJobs);
+  const [internalCandidates, setInternalCandidates] = useState(mockInternalCandidates);
+  const [pastCandidatesData, setPastCandidatesData] = useState(
+    mockPastCandidates.map(c => ({...c, originalSkills: [...c.skills], lastSimulatedUpdateNote: c.lastSimulatedUpdateNote || null }))
+  );
+  
+  const [selectedJobId, setSelectedJobId] = useState(null);
+  const [activeTab, setActiveTab] = useState('internal');
+  
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showOutreachModal, setShowOutreachModal] = useState(false);
+  const [selectedCandidateForOutreach, setSelectedCandidateForOutreach] = useState(null);
+  const [generatedMessage, setGeneratedMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [isGeneratingOutreach, setIsGeneratingOutreach] = useState(false);
+  const [isSummarizingCandidate, setIsSummarizingCandidate] = useState(false);
+  const [candidateSummary, setCandidateSummary] = useState('');
+  const [showSummaryModal, setShowSummaryModal] = useState(false);
+  const [summarizingCandidateId, setSummarizingCandidateId] = useState(null);
+
+  const [isAnalyzingJob, setIsAnalyzingJob] = useState(false);
+  const [jobAnalysis, setJobAnalysis] = useState(null);
+  const [showJobAnalysisModal, setShowJobAnalysisModal] = useState(false);
+  
+  const [apiError, setApiError] = useState(null);
+
+  const [isAnalyzingFitGaps, setIsAnalyzingFitGaps] = useState(false);
+  const [fitGapsAnalysis, setFitGapsAnalysis] = useState(null);
+  const [showFitGapsModal, setShowFitGapsModal] = useState(false);
+  const [analyzingFitGapsCandidate, setAnalyzingFitGapsCandidate] = useState(null);
+
+  const [showTrajectoryModal, setShowTrajectoryModal] = useState(false);
+  const [isAnalyzingTrajectory, setIsAnalyzingTrajectory] = useState(false);
+  const [trajectoryAnalysisData, setTrajectoryAnalysisData] = useState(null);
+  const [selectedCandidateForTrajectory, setSelectedCandidateForTrajectory] = useState('');
+  const [targetCareerGoalInput, setTargetCareerGoalInput] = useState('');
+
+  const [isAnalyzingHiddenGem, setIsAnalyzingHiddenGem] = useState(false);
+  const [hiddenGemAnalysis, setHiddenGemAnalysis] = useState(null);
+  const [showHiddenGemModal, setShowHiddenGemModal] = useState(false);
+  const [analyzingHiddenGemCandidate, setAnalyzingHiddenGemCandidate] = useState(null);
+
+  const [showReEngagementAlertsModal, setShowReEngagementAlertsModal] = useState(false);
+  const [reEngagementAlerts, setReEngagementAlerts] = useState([]);
+  const [isSimulatingReEngagement, setIsSimulatingReEngagement] = useState(false);
+
+
+  useEffect(() => {
+    if (mockJobs.length > 0 && !selectedJobId) {
+      setSelectedJobId(mockJobs[0].id);
+    }
+  }, [selectedJobId]);
+
+
+  const selectedJob = useMemo(() => jobs.find(job => job.id === selectedJobId), [jobs, selectedJobId]);
+  const internalMatches = useMemo(() => simulateAIMatching(selectedJob, internalCandidates), [selectedJob, internalCandidates]);
+  const pastMatches = useMemo(() => simulateAIMatching(selectedJob, pastCandidatesData), [selectedJob, pastCandidatesData]);
+  const filteredJobs = useMemo(() => jobs.filter(job => job.title.toLowerCase().includes(searchTerm.toLowerCase()) || job.department.toLowerCase().includes(searchTerm.toLowerCase())), [jobs, searchTerm]);
+
+  const handleSelectJob = (jobId) => {
+    setIsLoading(true);
+    setSelectedJobId(jobId);
+    setApiError(null); 
+    setTimeout(() => setIsLoading(false), 500);
+  };
+
+  const handleGenerateOutreach = async (candidate, type) => {
+    if (!selectedJob) return;
+    setApiError(null);
+    setSelectedCandidateForOutreach({...candidate, type});
+    setIsGeneratingOutreach(true);
+    setShowOutreachModal(true); 
+    const prompt = `Generate a professional outreach message to ${candidate.name} (${type === 'internal' ? 'an internal employee' : 'a past applicant'}) for the role of ${selectedJob.title}. Candidate skills: ${candidate.skills.join(', ')}. ${type==='internal' && candidate.careerAspirations ? `Aspirations: ${candidate.careerAspirations}.` : ''} Job key aspects: ${selectedJob.description.substring(0,150)}... Sign off as GBS Hungary Talent Team.`;
+    try {
+      const message = await callGeminiAPI(prompt);
+      setGeneratedMessage(message);
+    } catch (error) {
+      setApiError(`Failed to generate outreach: ${error.message}`);
+      setGeneratedMessage("Could not generate message."); 
+    } finally {
+      setIsGeneratingOutreach(false);
+    }
+  };
+  
+  const handleCloseOutreachModal = () => {
+    setShowOutreachModal(false);
+    setSelectedCandidateForOutreach(null);
+    setGeneratedMessage('');
+    setApiError(null);
+  };
+
+  const handleSummarizeCandidate = async (candidate) => {
+    setApiError(null);
+    setSummarizingCandidateId(candidate.id); 
+    setIsSummarizingCandidate(true);
+    setShowSummaryModal(true);
+    setCandidateSummary(''); 
+    const prompt = `Summarize this candidate for a recruiter in 2-3 sentences: Name: ${candidate.name}, Role: ${candidate.currentRole || candidate.previousRoleAppliedFor}, Skills: ${candidate.skills.join(', ')}, Experience: ${candidate.experienceYears || 'N/A'} years. ${candidate.careerAspirations ? `Aspirations: ${candidate.careerAspirations}.` : ''} ${candidate.notes ? `Notes: ${candidate.notes}.` : ''}`;
+    try {
+      const summary = await callGeminiAPI(prompt);
+      setCandidateSummary(summary);
+    } catch (error) {
+      setApiError(`Failed to summarize candidate: ${error.message}`);
+      setCandidateSummary("Could not generate summary.");
+    } finally {
+      setIsSummarizingCandidate(false);
+    }
+  };
+
+  const handleAnalyzeJobDescription = async () => {
+    if (!selectedJob) return;
+    setApiError(null);
+    setIsAnalyzingJob(true);
+    setShowJobAnalysisModal(true);
+    setJobAnalysis(null);
+    const prompt = `Analyze job: "${selectedJob.title} - ${selectedJob.description}". Output JSON: {"keyResponsibilities": ["resp1", ...], "idealCandidateProfile": "profile string", "suggestedSearchKeywords": ["key1", ...]}. Limit lists to 3-5 items.`;
+    try {
+      const rawJsonAnalysis = await callGeminiAPI(prompt, true); 
+      const parsedAnalysis = JSON.parse(rawJsonAnalysis); 
+      setJobAnalysis(parsedAnalysis);
+    } catch (error) {
+      setApiError(`Failed to analyze job: ${error.message}`);
+      setJobAnalysis({ error: "Could not analyze job." });
+    } finally {
+      setIsAnalyzingJob(false);
+    }
+  };
+
+  const handleAnalyzeFitAndGaps = async (candidate) => {
+    if (!selectedJob) return;
+    setApiError(null);
+    setAnalyzingFitGapsCandidate(candidate);
+    setIsAnalyzingFitGaps(true);
+    setShowFitGapsModal(true);
+    setFitGapsAnalysis(null);
+    const learningResourcesString = mockLearningResources.map(lr => `- "${lr.title}" (${lr.type})`).join('\n');
+    const prompt = `
+      You are an AI Talent Development Advisor for GBS Hungary.
+      Analyze the internal candidate's profile against the selected job description.
+      Provide:
+      1. A skill gap analysis for the CURRENT selected job.
+      2. Suggested personalized development pathways for the CURRENT selected job.
+      3. A "Future Potential Projection" for a logical NEXT-STEP/MORE-SENIOR role.
+
+      Candidate Information:
+      Name: ${candidate.name}
+      Current Role: ${candidate.currentRole}
+      Skills: ${candidate.skills.join(', ')}
+      Experience: ${candidate.experienceYears} years
+      Career Aspirations: ${candidate.careerAspirations || 'Not specified'}
+      Stated Development Goals: ${candidate.developmentGoals || 'Not specified'}
+      Learning Agility (1-5, 5 is high): ${candidate.learningAgility || 3} 
+
+      CURRENT Selected Job Information:
+      Title: ${selectedJob.title}
+      Required Skills: ${selectedJob.requiredSkills.join(', ')}
+      Description (first 300 chars): ${selectedJob.description.substring(0,300)}
+
+      Available Learning Resources (example):
+      ${learningResourcesString}
+
+      Output the analysis as a JSON object with the exact following structure:
+      {
+        "currentJobAnalysis": {
+          "overallFitAssessment": "A brief assessment of the candidate's overall fit for the CURRENT role (e.g., Strong potential, Good fit with some gaps...).",
+          "identifiedSkillGaps": [
+            { "skill": "Skill Name", "gapDescription": "Brief explanation of why this is a gap for the CURRENT role." }
+          ],
+          "suggestedDevelopmentPathways": [
+            { "pathwayTitle": "Concise title", "description": "Detailed suggestion for development for CURRENT role, referencing resources or general actions.", "relevantSkillsAddressed": ["Skill Name 1"] }
+          ]
+        },
+        "futurePotentialProjection": {
+          "suggestedFutureRole": "Logical next-step or more senior role title (e.g., 'Lead Software Engineer', 'Senior Marketing Specialist')",
+          "futureRoleTimeframe": "Estimated timeframe to reach this future role (e.g., '12-18 months', '2-3 years with focused development').",
+          "futurePotentialScore": "A numerical score out of 100 (e.g., 75) indicating potential for this FUTURE role, assuming development.",
+          "futurePotentialRationale": "Brief rationale for the future potential score and role suggestion, considering development."
+        }
+      }
+      Limit to 2-3 skill gaps and 2-3 development pathways for the current role.
+      The future role should be a sensible progression from the current selected job or candidate's aspirations.
+    `;
+    try {
+        const rawJsonAnalysis = await callGeminiAPI(prompt, true);
+        const parsedAnalysis = JSON.parse(rawJsonAnalysis);
+        setFitGapsAnalysis(parsedAnalysis);
+    } catch (error) {
+        setApiError(`Failed to analyze fit/gaps & future potential: ${error.message}`);
+        setFitGapsAnalysis({ error: "Could not analyze. Please try again."});
+    } finally {
+        setIsAnalyzingFitGaps(false);
+    }
+  };
+
+  const handleAnalyzeTrajectory = async () => {
+    if (!selectedCandidateForTrajectory || !targetCareerGoalInput) {
+        setApiError("Please select a candidate and enter a target career goal.");
+        return;
+    }
+    const candidate = internalCandidates.find(c => c.id === selectedCandidateForTrajectory);
+    if (!candidate) {
+        setApiError("Selected candidate not found.");
+        return;
+    }
+    setApiError(null);
+    setIsAnalyzingTrajectory(true);
+    setTrajectoryAnalysisData(null);
+    const learningResourcesString = mockLearningResources.map(lr => `- "${lr.title}" (${lr.type})`).join('\n');
+    const prompt = `
+      AI Career Path Advisor: Analyze trajectory for ${candidate.name} (Role: ${candidate.currentRole}, Skills: ${candidate.skills.join(', ')}, Aspirations: ${candidate.careerAspirations || 'N/A'}) towards "${targetCareerGoalInput}".
+      Learning resources: ${learningResourcesString}.
+      Output JSON: {
+        "targetRole": "${targetCareerGoalInput}",
+        "candidateName": "${candidate.name}",
+        "trajectoryOverallAssessment": "Overall assessment string.",
+        "suggestedMilestones": [
+          {
+            "milestoneRole": "Interim Role 1", "timeframeEstimate": "1-2 years",
+            "keySkillsToDevelop": ["Skill A"], "experienceToGain": ["Lead project..."],
+            "suggestedLearning": ["Course X..."]
+          }
+        ]
+      } Suggest 2-3 milestones.
+    `;
+    try {
+        const rawJson = await callGeminiAPI(prompt, true);
+        const parsedData = JSON.parse(rawJson);
+        setTrajectoryAnalysisData(parsedData);
+    } catch (error) {
+        setApiError(`Failed to analyze career trajectory: ${error.message}`);
+        setTrajectoryAnalysisData({ error: "Could not analyze trajectory." });
+    } finally {
+        setIsAnalyzingTrajectory(false);
+    }
+  };
+
+  const handleHiddenGemDeepDive = async (candidate) => {
+    if (!selectedJob) {
+        setApiError("Please select a job first to analyze the hidden gem against.");
+        return;
+    }
+    setApiError(null);
+    setAnalyzingHiddenGemCandidate(candidate);
+    setIsAnalyzingHiddenGem(true);
+    setShowHiddenGemModal(true);
+    setHiddenGemAnalysis(null);
+
+    const candidateType = candidate.currentRole ? 'internal employee' : 'past applicant';
+    const prompt = `
+        You are an AI Talent Analyst specializing in identifying "Hidden Gems".
+        Analyze why the following candidate, marked as a Hidden Gem, is a potentially strong (even if unconventional) fit for the selected job.
+        Focus on transferable skills and a deeper rationale beyond direct keyword matches.
+
+        Candidate Information (${candidateType}):
+        Name: ${candidate.name}
+        ${candidate.currentRole ? `Current Role: ${candidate.currentRole}` : `Previously Applied For: ${candidate.previousRoleAppliedFor}`}
+        Skills: ${candidate.skills.join(', ')}
+        Experience: ${candidate.experienceYears || 'N/A'} years
+        ${candidate.careerAspirations ? `Career Aspirations: ${candidate.careerAspirations}` : ''}
+        ${candidate.developmentGoals ? `Development Goals: ${candidate.developmentGoals}` : ''}
+        ${candidate.notes ? `Recruiter Notes: ${candidate.notes}` : ''}
+
+        Selected Job Information:
+        Title: ${selectedJob.title}
+        Required Skills: ${selectedJob.requiredSkills.join(', ')}
+        Description (first 300 chars): ${selectedJob.description.substring(0,300)}
+
+        Output the analysis as a JSON object with the exact following structure:
+        {
+          "gemRationale": "Overall explanation (2-3 sentences) of why this candidate is a hidden gem for THIS SPECIFIC JOB, considering their unique background against the job's needs.",
+          "transferableSkillsAnalysis": [
+            {
+              "skill": "Identified Transferable Skill (e.g., 'Stakeholder Management' from a non-technical role)",
+              "candidateEvidence": "Brief evidence of this skill from candidate's profile (e.g., 'Managed complex projects involving multiple teams').",
+              "relevanceToJob": "How this skill specifically applies to the selected job (e.g., 'Crucial for liaising with product and engineering for the Senior Software Engineer role')."
+            }
+          ],
+          "leveragingSuggestions": "Brief, actionable suggestions (1-2) on how these transferable skills could be utilized or further highlighted if the candidate were considered for the role.",
+          "unconventionalFitRationale": "A short summary (1-2 sentences) explaining the non-obvious or unconventional aspects of this fit that make it compelling."
+        }
+        Identify 2-3 key transferable skills.
+    `;
+    try {
+        const rawJson = await callGeminiAPI(prompt, true);
+        const parsedData = JSON.parse(rawJson);
+        setHiddenGemAnalysis(parsedData);
+    } catch (error) {
+        setApiError(`Failed to analyze hidden gem: ${error.message}`);
+        setHiddenGemAnalysis({ error: "Could not perform deep dive. Please try again."});
+    } finally {
+        setIsAnalyzingHiddenGem(false);
+    }
+  };
+
+ const handleSimulateReEngagement = () => {
+    setApiError(null);
+    setIsSimulatingReEngagement(true);
+    
+    // Reset lastSimulatedUpdateNote for all past candidates before a new simulation
+    let initialPastCandidates = pastCandidatesData.map(c => ({
+        ...c,
+        skills: [...c.originalSkills], // Reset skills to original for a clean simulation run
+        lastSimulatedUpdateNote: null 
+    }));
+
+    let tempPastCandidates = JSON.parse(JSON.stringify(initialPastCandidates)); // Work with a fresh copy for modifications
+    let updatedCandidatesForStateDisplay = JSON.parse(JSON.stringify(initialPastCandidates)); // This will be set to state to reflect notes
+
+    const newAlerts = [];
+    const candidatesToConsiderForUpdate = tempPastCandidates.sort(() => 0.5 - Math.random()); // Shuffle to pick different ones
+    let updatesMadeCount = 0;
+
+    for (const candidate of candidatesToConsiderForUpdate) {
+        if (updatesMadeCount >= 2) break; // Limit to 2 updates for demo clarity
+
+        const stateCandidateRef = updatedCandidatesForStateDisplay.find(c => c.id === candidate.id);
+        if (!stateCandidateRef) continue;
+
+        // Try to find a skill from a random job that the candidate doesn't have
+        const shuffledJobs = [...mockJobs].sort(() => 0.5 - Math.random());
+        let skillAddedThisTurn = null;
+        let relevantJobForSkill = null;
+
+        for (const job of shuffledJobs) {
+            const potentialSkill = job.requiredSkills.find(s => !candidate.skills.includes(s));
+            if (potentialSkill) {
+                // Simulate adding the skill to check its impact for THIS job
+                const candidateWithNewSkill = { ...candidate, skills: [...candidate.skills, potentialSkill] };
+                const matchWithNewSkill = simulateAIMatching(job, [candidateWithNewSkill])[0];
+
+                if (matchWithNewSkill && matchWithNewSkill.matchScore > 60) { // Threshold for a good match
+                    // If it's a good match, "permanently" add skill for this simulation run
+                    if (!stateCandidateRef.skills.includes(potentialSkill)) {
+                         stateCandidateRef.skills.push(potentialSkill); // Add to the version that will be set to state
+                    }
+                    skillAddedThisTurn = potentialSkill;
+                    relevantJobForSkill = job;
+                    
+                    const updateNote = `Simulated: Acquired '${skillAddedThisTurn}' (for ${relevantJobForSkill.title})`;
+                    stateCandidateRef.lastSimulatedUpdateNote = updateNote;
+                    
+                    newAlerts.push({
+                        candidate: { ...stateCandidateRef, originalSkills: [...candidate.originalSkills] }, // Pass original skills for comparison in modal
+                        job: relevantJobForSkill,
+                        newScore: matchWithNewSkill.matchScore,
+                        reason: `Now a strong match for ${relevantJobForSkill.title} (Score: ${matchWithNewSkill.matchScore}%) after simulated acquisition of skill: '${skillAddedThisTurn}'.`
+                    });
+                    updatesMadeCount++;
+                    break; // Found a skill to add for this candidate, move to next candidate
+                }
+            }
+        }
+    }
+    
+    setPastCandidatesData(updatedCandidatesForStateDisplay); // Update main state with notes and potentially new skills
+    setReEngagementAlerts(newAlerts);
+
+    if (newAlerts.length > 0) {
+        setShowReEngagementAlertsModal(true);
+    } else {
+        const tempAlertMsg = document.createElement('div');
+        Object.assign(tempAlertMsg.style, { position: 'fixed', top: '80px', left: '50%', transform: 'translateX(-50%)', backgroundColor: '#1e40af', color: 'white', padding: '10px 20px', borderRadius: '8px', zIndex: '200', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' });
+        tempAlertMsg.textContent = "Simulation complete. No new high-potential re-engagement opportunities found this time.";
+        document.body.appendChild(tempAlertMsg);
+        setTimeout(() => {
+            if (document.body.contains(tempAlertMsg)) {
+                document.body.removeChild(tempAlertMsg);
+            }
+        }, 3000);
+    }
+    setIsSimulatingReEngagement(false);
+  };
+
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-gray-100 font-sans flex flex-col">
+      <header className="bg-slate-900/80 backdrop-blur-md shadow-lg p-4 sticky top-0 z-50">
+        <div className="container mx-auto flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <Brain className="h-10 w-10 text-sky-400" />
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-blue-500">Talent Sonar</h1>
+              <p className="text-sm text-sky-300/70">AI-Powered Proactive Talent Discovery</p>
+            </div>
+          </div>
+          <div className="text-xs text-gray-400">GBS Hungary - Hackathon Demo</div>
+        </div>
+      </header>
+
+      {apiError && (
+        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 bg-red-600/90 text-white p-3 rounded-md shadow-lg z-[150] flex items-center max-w-md">
+            <AlertTriangle size={20} className="mr-2"/>
+            <span>{apiError}</span>
+            <button onClick={() => setApiError(null)} className="ml-4 text-red-200 hover:text-white">
+                <X size={18}/>
+            </button>
+        </div>
+      )}
+      
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex space-x-4">
+        <button
+            onClick={() => {
+                setShowTrajectoryModal(true);
+                setApiError(null); 
+                setTrajectoryAnalysisData(null); 
+                setSelectedCandidateForTrajectory(''); 
+                setTargetCareerGoalInput('');
+            }}
+            className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold py-2 px-6 rounded-lg flex items-center justify-center transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50 text-sm"
+        >
+            <Rocket size={18} className="mr-2"/> Explore Career Trajectory
+        </button>
+        <button
+            onClick={handleSimulateReEngagement}
+            disabled={isSimulatingReEngagement}
+            className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold py-2 px-6 rounded-lg flex items-center justify-center transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-opacity-50 text-sm disabled:opacity-60"
+        >
+            {isSimulatingReEngagement ? <Loader2 size={18} className="mr-2 animate-spin"/> : <BellRing size={18} className="mr-2"/>} 
+            Simulate Skill Updates & Re-engage
+        </button>
+      </div>
+
+      <main className="container mx-auto p-4 sm:p-6 lg:p-8 flex-grow flex flex-col md:flex-row gap-6 pt-0">
+        <div className="w-full md:w-1/3 lg:w-1/4 flex flex-col space-y-4">
+          <div className="bg-slate-800/70 backdrop-blur-sm shadow-xl rounded-xl p-1">
+             <div className="p-4">
+                <h2 className="text-xl font-semibold text-sky-400 mb-3 flex items-center"><Briefcase className="mr-2 h-5 w-5"/>Job Requisitions</h2>
+                <div className="relative mb-3">
+                  <input
+                    type="text"
+                    placeholder="Search jobs..."
+                    className="w-full p-2 pl-8 rounded-md bg-slate-700 border border-slate-600 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none transition-colors"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                  <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                </div>
+              </div>
+            <div className="max-h-[calc(100vh-350px)] overflow-y-auto px-2 pb-2 custom-scrollbar"> {/* Adjusted max-h */}
+              {filteredJobs.length > 0 ? filteredJobs.map(job => (
+                <JobListItem key={job.id} job={job} selected={job.id === selectedJobId} onSelect={() => handleSelectJob(job.id)} />
+              )) : <p className="text-center text-gray-400 p-4">No jobs match your search.</p>}
+            </div>
+          </div>
+        </div>
+
+        <div className="w-full md:w-2/3 lg:w-3/4 flex flex-col space-y-6">
+          {isLoading ? (
+            <div className="flex justify-center items-center h-full bg-slate-800/70 backdrop-blur-sm shadow-xl rounded-xl p-6">
+              <div className="text-center">
+                <Brain className="h-16 w-16 text-sky-500 animate-pulse mx-auto mb-4" />
+                <p className="text-xl text-sky-400">Talent Sonar is searching...</p>
+              </div>
+            </div>
+          ) : selectedJob ? (
+            <>
+              <JobDetails job={selectedJob} onAnalyzeJob={handleAnalyzeJobDescription} isAnalyzing={isAnalyzingJob} />
+              <div className="bg-slate-800/70 backdrop-blur-sm shadow-xl rounded-xl p-1">
+                <div className="p-4 sm:p-6">
+                    <div className="flex border-b border-slate-700 mb-4">
+                    <TabButton icon={<Users className="mr-2 h-5 w-5"/>} label="Internal Talent" count={internalMatches.length} isActive={activeTab === 'internal'} onClick={() => setActiveTab('internal')} />
+                    <TabButton icon={<UserCheck className="mr-2 h-5 w-5"/>} label="Past Applicants" count={pastMatches.length} isActive={activeTab === 'past'} onClick={() => setActiveTab('past')} />
+                    </div>
+                    {activeTab === 'internal' && <CandidateList candidates={internalMatches} onGenerateOutreach={(candidate) => handleGenerateOutreach(candidate, 'internal')} onSummarizeCandidate={handleSummarizeCandidate} onAnalyzeFitAndGaps={handleAnalyzeFitAndGaps} onHiddenGemDeepDive={handleHiddenGemDeepDive} summarizingCandidateId={summarizingCandidateId} analyzingFitGapsCandidateId={analyzingFitGapsCandidate?.id} analyzingHiddenGemCandidateId={analyzingHiddenGemCandidate?.id} type="internal" />}
+                    {activeTab === 'past' && <CandidateList candidates={pastMatches} onGenerateOutreach={(candidate) => handleGenerateOutreach(candidate, 'past')} onSummarizeCandidate={handleSummarizeCandidate} onHiddenGemDeepDive={handleHiddenGemDeepDive} summarizingCandidateId={summarizingCandidateId} analyzingHiddenGemCandidateId={analyzingHiddenGemCandidate?.id} type="past" />}
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="flex justify-center items-center h-full bg-slate-800/70 backdrop-blur-sm shadow-xl rounded-xl p-6">
+              <p className="text-xl text-gray-400">Select a job to see potential matches.</p>
+            </div>
+          )}
+        </div>
+      </main>
+      
+      {showOutreachModal && selectedCandidateForOutreach && (
+        <OutreachModal
+          candidate={selectedCandidateForOutreach}
+          job={selectedJob}
+          initialMessage={generatedMessage}
+          isLoading={isGeneratingOutreach}
+          onClose={handleCloseOutreachModal}
+          onUpdateMessage={(updatedMsg) => setGeneratedMessage(updatedMsg)}
+        />
+      )}
+
+      {showSummaryModal && (
+        <InfoModal title="✨ AI Candidate Summary" isLoading={isSummarizingCandidate} onClose={() => { setShowSummaryModal(false); setSummarizingCandidateId(null); setApiError(null); }} content={candidateSummary} />
+      )}
+
+      {showJobAnalysisModal && (
+         <JobAnalysisModal
+            isLoading={isAnalyzingJob}
+            onClose={() => { setShowJobAnalysisModal(false); setApiError(null); }}
+            analysis={jobAnalysis}
+            jobTitle={selectedJob?.title || "Job"}
+        />
+      )}
+
+      {showFitGapsModal && analyzingFitGapsCandidate && (
+        <FitGapsAnalysisModal
+            isLoading={isAnalyzingFitGaps}
+            onClose={() => { setShowFitGapsModal(false); setAnalyzingFitGapsCandidate(null); setApiError(null); }}
+            analysis={fitGapsAnalysis}
+            candidateName={analyzingFitGapsCandidate.name}
+            jobTitle={selectedJob?.title || "Selected Job"}
+        />
+      )}
+
+      {showTrajectoryModal && (
+        <CareerTrajectoryModal
+            isLoading={isAnalyzingTrajectory}
+            onClose={() => {
+                setShowTrajectoryModal(false);
+                setApiError(null);
+                setTrajectoryAnalysisData(null);
+            }}
+            analysisData={trajectoryAnalysisData}
+            internalCandidates={internalCandidates}
+            selectedCandidateId={selectedCandidateForTrajectory}
+            onSelectCandidate={setSelectedCandidateForTrajectory}
+            targetGoal={targetCareerGoalInput}
+            onSetTargetGoal={setTargetCareerGoalInput}
+            onAnalyze={handleAnalyzeTrajectory}
+        />
+      )}
+
+      {showHiddenGemModal && analyzingHiddenGemCandidate && (
+        <HiddenGemDeepDiveModal
+            isLoading={isAnalyzingHiddenGem}
+            onClose={() => {
+                setShowHiddenGemModal(false);
+                setAnalyzingHiddenGemCandidate(null);
+                setApiError(null);
+            }}
+            analysis={hiddenGemAnalysis}
+            candidateName={analyzingHiddenGemCandidate.name}
+            jobTitle={selectedJob?.title || "Selected Job"}
+        />
+      )}
+
+      {showReEngagementAlertsModal && (
+        <ReEngagementAlertsModal
+            isLoading={isSimulatingReEngagement} 
+            onClose={() => {
+                setShowReEngagementAlertsModal(false);
+            }}
+            alerts={reEngagementAlerts}
+        />
+      )}
+
+
+      <footer className="bg-slate-900/80 p-3 text-center text-xs text-gray-500 border-t border-slate-700">
+        Talent Sonar Demo © 2025. For GBS Hungary Hackathon. AI features powered by Google Gemini.
+      </footer>
+    </div>
+  );
+};
+
+const JobListItem = ({ job, selected, onSelect }) => (
+  <button
+    onClick={onSelect}
+    className={`w-full text-left p-3 mb-2 rounded-lg transition-all duration-200 ease-in-out transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-sky-500
+      ${selected ? 'bg-sky-600/30 ring-2 ring-sky-500 shadow-lg' : 'bg-slate-700/50 hover:bg-slate-600/70'}`}
+  >
+    <h3 className={`font-semibold ${selected ? 'text-sky-300' : 'text-sky-400'}`}>{job.title}</h3>
+    <p className="text-xs text-gray-400">{job.department} - {job.location}</p>
+    <p className="text-xs text-gray-500 mt-1">Posted: {new Date(job.postedDate).toLocaleDateString()}</p>
+  </button>
+);
+
+const JobDetails = ({ job, onAnalyzeJob, isAnalyzing }) => {
+  const [expanded, setExpanded] = useState(false);
+  return (
+    <div className="bg-slate-800/70 backdrop-blur-sm shadow-xl rounded-xl p-1">
+        <div className="p-4 sm:p-6">
+            <div className="flex justify-between items-start">
+                <div>
+                    <h2 className="text-2xl font-bold text-sky-400">{job.title}</h2>
+                    <p className="text-sky-300/80 mb-1">{job.department} - {job.location} ({job.type})</p>
+                    <p className="text-xs text-gray-400">Posted: {new Date(job.postedDate).toLocaleDateString()}</p>
+                </div>
+                <div className="flex items-center space-x-2">
+                    <button
+                        onClick={onAnalyzeJob}
+                        disabled={isAnalyzing}
+                        className="bg-sky-500/20 hover:bg-sky-500/40 text-sky-300 font-medium py-1.5 px-3 rounded-lg flex items-center transition-colors text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {isAnalyzing ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <Sparkles className="h-4 w-4 mr-1.5 text-yellow-400" />}
+                        Analyze Job with AI
+                    </button>
+                    <button onClick={() => setExpanded(!expanded)} className="text-sky-400 hover:text-sky-300 p-1">
+                        {expanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                    </button>
+                </div>
+            </div>
+            {expanded && (
+                 <div className="mt-3 border-t border-slate-700 pt-3">
+                    <p className="text-sm text-gray-300 mb-3 whitespace-pre-wrap">{job.description}</p>
+                    <h4 className="font-semibold text-sky-400/90 mb-1">Key Skills:</h4>
+                    <div className="flex flex-wrap gap-2">
+                    {job.requiredSkills.map(skill => (
+                        <span key={skill} className="bg-sky-500/20 text-sky-300 text-xs px-2 py-1 rounded-full">{skill}</span>
+                    ))}
+                    </div>
+                </div>
+            )}
+        </div>
+    </div>
+  );
+};
+
+const TabButton = ({ icon, label, count, isActive, onClick }) => (
+  <button
+    onClick={onClick}
+    className={`flex items-center justify-center py-3 px-4 sm:px-6 text-sm font-medium rounded-t-lg transition-colors duration-150
+      ${isActive ? 'border-b-2 border-sky-500 text-sky-400 bg-slate-700/50' : 'text-gray-400 hover:text-sky-300 hover:bg-slate-700/30'}`}
+  >
+    {icon}
+    {label} <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${isActive ? 'bg-sky-500 text-slate-900' : 'bg-slate-600 text-gray-300'}`}>{count}</span>
+  </button>
+);
+
+const CandidateList = ({ candidates, onGenerateOutreach, onSummarizeCandidate, onAnalyzeFitAndGaps, onHiddenGemDeepDive, summarizingCandidateId, analyzingFitGapsCandidateId, analyzingHiddenGemCandidateId, type }) => {
+  if (!candidates || candidates.length === 0) { 
+    return <p className="text-center text-gray-400 py-8">No candidates found for this role.</p>;
+  }
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 pt-4 max-h-[calc(100vh-500px)] overflow-y-auto custom-scrollbar pr-2">
+      {candidates.map(candidate => (
+        <CandidateCard 
+            key={candidate.id} 
+            candidate={candidate} 
+            onGenerateOutreach={() => onGenerateOutreach(candidate)}
+            onSummarizeCandidate={() => onSummarizeCandidate(candidate)}
+            onAnalyzeFitAndGaps={type === 'internal' ? () => onAnalyzeFitAndGaps(candidate) : undefined}
+            onHiddenGemDeepDive={candidate.isHiddenGem ? () => onHiddenGemDeepDive(candidate) : undefined}
+            isSummarizing={summarizingCandidateId === candidate.id}
+            isAnalyzingFitGaps={analyzingFitGapsCandidateId === candidate.id}
+            isAnalyzingHiddenGem={analyzingHiddenGemCandidateId === candidate.id}
+            type={type}
+        />
+      ))}
+    </div>
+  );
+};
+
+const CandidateCard = ({ candidate, onGenerateOutreach, onSummarizeCandidate, onAnalyzeFitAndGaps, onHiddenGemDeepDive, isSummarizing, isAnalyzingFitGaps, isAnalyzingHiddenGem, type }) => (
+  <div className={`bg-slate-700/60 shadow-lg rounded-xl p-4 flex flex-col justify-between transition-all duration-300 hover:shadow-sky-500/30 hover:ring-1 hover:ring-sky-600 transform hover:-translate-y-1`}>
+    <div>
+      <div className="flex items-start mb-3">
+        <img src={candidate.photoUrl} alt={candidate.name} className="h-16 w-16 rounded-full mr-4 border-2 border-slate-600 object-cover" onError={(e) => e.target.src = `https://placehold.co/100x100/777/FFF?text=${candidate.name.substring(0,1)}${candidate.name.split(' ').length > 1 ? candidate.name.split(' ')[1].substring(0,1) : ''}`} />
+        <div>
+          <h3 className="text-lg font-semibold text-sky-400">{candidate.name}</h3>
+          <p className="text-xs text-gray-400">{type === 'internal' ? candidate.currentRole : `Applied for: ${candidate.previousRoleAppliedFor}`}</p>
+          {type === 'internal' && <p className="text-xs text-gray-500">{candidate.department}</p>}
+        </div>
+      </div>
+
+      <div className="mb-1">
+        <span className="text-sm font-medium text-sky-300/80">Match Score: </span>
+        <span className={`font-bold text-lg ${candidate.matchScore > 75 ? 'text-green-400' : candidate.matchScore > 50 ? 'text-yellow-400' : 'text-red-400'}`}>
+          {candidate.matchScore}%
+        </span>
+        {candidate.isHiddenGem && (
+          <span className="ml-2 inline-flex items-center bg-yellow-500/20 text-yellow-300 text-xs px-2 py-1 rounded-full">
+            <Star className="h-3 w-3 mr-1 text-yellow-400" /> Hidden Gem
+          </span>
+        )}
+      </div>
+      <p className="text-xs text-gray-400 italic mb-2 h-8 overflow-hidden text-ellipsis" title={candidate.matchRationale}>{candidate.matchRationale}</p>
+      
+      {candidate.lastSimulatedUpdateNote && type === 'past' && (
+        <p className="text-xs text-indigo-300 bg-indigo-500/20 p-1.5 rounded-md mb-2 flex items-center">
+            <BellRing size={14} className="mr-1.5 text-indigo-400"/> {candidate.lastSimulatedUpdateNote}
+        </p>
+      )}
+
+      <h5 className="text-xs font-semibold text-sky-400/90 mb-1">Key Skills:</h5>
+      <div className="flex flex-wrap gap-1 mb-3">
+        {candidate.skills.slice(0, 4).map(skill => (
+          <span key={skill} className="bg-slate-600 text-gray-300 text-xs px-2 py-0.5 rounded-full">{skill}</span>
+        ))}
+        {candidate.skills.length > 4 && <span className="text-gray-400 text-xs px-2 py-0.5 rounded-full">+{candidate.skills.length - 4} more</span>}
+      </div>
+
+      {type === 'internal' && (
+        <>
+          <p className="text-xs text-gray-400"><span className="font-semibold text-sky-400/80">Experience:</span> {candidate.experienceYears} years</p>
+          <p className="text-xs text-gray-400"><span className="font-semibold text-sky-400/80">Aspirations:</span> <span className="italic truncate block" title={candidate.careerAspirations}>{candidate.careerAspirations}</span></p>
+        </>
+      )}
+      {type === 'past' && (
+        <>
+          <p className="text-xs text-gray-400"><span className="font-semibold text-sky-400/80">Last Contact:</span> {candidate.lastContactDate}</p>
+          <p className="text-xs text-gray-400"><span className="font-semibold text-sky-400/80">Notes:</span> <span className="italic truncate block" title={candidate.notes}>{candidate.notes}</span></p>
+        </>
+      )}
+    </div>
+
+    <div className="mt-4 space-y-2">
+        <button
+            onClick={onSummarizeCandidate}
+            disabled={isSummarizing || isAnalyzingFitGaps || isAnalyzingHiddenGem}
+            className="w-full bg-teal-500/20 hover:bg-teal-500/40 text-teal-300 font-medium py-2 px-4 rounded-lg flex items-center justify-center transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+            {isSummarizing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Sparkles className="h-4 w-4 mr-2 text-yellow-400" />}
+            Summarize Profile
+        </button>
+        {type === 'internal' && onAnalyzeFitAndGaps && (
+            <button
+                onClick={onAnalyzeFitAndGaps}
+                disabled={isAnalyzingFitGaps || isSummarizing || isAnalyzingHiddenGem}
+                className="w-full bg-purple-500/20 hover:bg-purple-500/40 text-purple-300 font-medium py-2 px-4 rounded-lg flex items-center justify-center transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                {isAnalyzingFitGaps ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <TrendingUp className="h-4 w-4 mr-2" />}
+                Analyze Fit & Gaps
+            </button>
+        )}
+        {candidate.isHiddenGem && onHiddenGemDeepDive && (
+             <button
+                onClick={onHiddenGemDeepDive}
+                disabled={isAnalyzingHiddenGem || isSummarizing || isAnalyzingFitGaps}
+                className="w-full bg-amber-500/20 hover:bg-amber-500/40 text-amber-300 font-medium py-2 px-4 rounded-lg flex items-center justify-center transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                {isAnalyzingHiddenGem ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Diamond className="h-4 w-4 mr-2" />}
+                Deep Dive on Gem
+            </button>
+        )}
+        <button
+            onClick={onGenerateOutreach}
+            disabled={isSummarizing || isAnalyzingFitGaps || isAnalyzingHiddenGem}
+            className="w-full bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center justify-center transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-opacity-50 text-sm  disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+            <Sparkles className="h-4 w-4 mr-2 text-yellow-400" /> Generate AI Outreach
+        </button>
+    </div>
+  </div>
+);
+
+
+const OutreachModal = ({ candidate, job, initialMessage, isLoading, onClose, onUpdateMessage }) => {
+  const [message, setMessage] = useState(initialMessage);
+  useEffect(() => { setMessage(initialMessage); }, [initialMessage]);
+  return (
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-[100]">
+      <div className="bg-slate-800 shadow-2xl rounded-xl p-6 w-full max-w-lg max-h-[90vh] flex flex-col">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-semibold text-sky-400 flex items-center">
+            <Sparkles className="h-6 w-6 mr-2 text-yellow-400"/> AI-Generated Outreach
+          </h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-200 transition-colors"><X size={24} /></button>
+        </div>
+        <div className="mb-3 p-3 bg-slate-700/50 rounded-md">
+            <p className="text-sm text-gray-300"><span className="font-semibold text-sky-400/80">To:</span> {candidate.name} ({candidate.email})</p>
+            <p className="text-sm text-gray-300"><span className="font-semibold text-sky-400/80">Regarding:</span> Opportunity - {job.title}</p>
+        </div>
+        {isLoading ? (
+            <div className="w-full h-64 p-3 flex flex-col items-center justify-center text-gray-400">
+                <Loader2 className="h-8 w-8 animate-spin mb-2 text-sky-500" /> Generating message...
+            </div>
+        ) : (
+            <textarea value={message} onChange={(e) => { setMessage(e.target.value); if (onUpdateMessage) onUpdateMessage(e.target.value);}}
+            className="w-full h-64 p-3 rounded-md bg-slate-700 border border-slate-600 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none resize-none text-sm text-gray-200 mb-4 custom-scrollbar flex-grow"
+            placeholder="Craft your message..." />
+        )}
+        <div className="flex justify-end space-x-3">
+          <button onClick={onClose} className="px-4 py-2 rounded-md bg-slate-600 hover:bg-slate-500 text-gray-200 font-medium transition-colors">Close</button>
+          <button onClick={() => { 
+              const modal = document.createElement('div');
+              Object.assign(modal.style, { position: 'fixed', left: '0', top: '0', width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: '200' });
+              modal.innerHTML = `<div style="background: #334155; padding: 20px; border-radius: 8px; text-align: center; color: white;"><p>Simulated: Message Sent!</p><button id="customAlertOkButton" style="background: #0ea5e9; color: white; padding: 8px 16px; border: none; border-radius: 4px; margin-top: 10px; cursor: pointer;">OK</button></div>`;
+              document.body.appendChild(modal);
+              document.getElementById('customAlertOkButton').onclick = () => { document.body.removeChild(modal); onClose(); };
+            }} disabled={isLoading}
+            className="px-6 py-2 rounded-md bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-semibold transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+          >Send Message (Simulated)</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const InfoModal = ({ title, isLoading, onClose, content }) => (
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-[100]">
+      <div className="bg-slate-800 shadow-2xl rounded-xl p-6 w-full max-w-md max-h-[90vh] flex flex-col">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-semibold text-sky-400 flex items-center">{title}</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-200 transition-colors"><X size={24} /></button>
+        </div>
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-10 text-gray-400">
+            <Loader2 className="h-8 w-8 animate-spin mb-2 text-sky-500" /> Generating...
+          </div>
+        ) : (
+          <div className="text-sm text-gray-200 whitespace-pre-wrap overflow-y-auto custom-scrollbar max-h-[60vh]">
+            {content || "No content available."}
+          </div>
+        )}
+        <div className="mt-6 flex justify-end">
+          <button onClick={onClose} className="px-4 py-2 rounded-md bg-slate-600 hover:bg-slate-500 text-gray-200 font-medium transition-colors">Close</button>
+        </div>
+      </div>
+    </div>
+);
+
+const JobAnalysisModal = ({ isLoading, onClose, analysis, jobTitle }) => (
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-[100]">
+      <div className="bg-slate-800 shadow-2xl rounded-xl p-6 w-full max-w-lg max-h-[90vh] flex flex-col">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-semibold text-sky-400 flex items-center">
+            <Sparkles className="h-6 w-6 mr-2 text-yellow-400"/> AI Job Analysis: <span className="ml-2 font-normal text-sky-300/80">{jobTitle}</span>
+          </h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-200 transition-colors"><X size={24} /></button>
+        </div>
+        <div className="overflow-y-auto custom-scrollbar max-h-[calc(90vh-150px)] pr-2">
+            {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-10 text-gray-400">
+                <Loader2 className="h-8 w-8 animate-spin mb-2 text-sky-500" /> Analyzing job...
+            </div>
+            ) : analysis && !analysis.error ? (
+            <div className="space-y-4">
+                <div>
+                    <h4 className="font-semibold text-sky-400/90 mb-1">Key Responsibilities:</h4>
+                    <ul className="list-disc list-inside text-sm text-gray-300 space-y-1">
+                        {analysis.keyResponsibilities?.map((item, index) => <li key={index}>{item}</li>) || <li>N/A</li>}
+                    </ul>
+                </div>
+                <div>
+                    <h4 className="font-semibold text-sky-400/90 mb-1">Ideal Candidate Profile:</h4>
+                    <p className="text-sm text-gray-300">{analysis.idealCandidateProfile || "N/A"}</p>
+                </div>
+                <div>
+                    <h4 className="font-semibold text-sky-400/90 mb-1">Suggested Search Keywords:</h4>
+                    <div className="flex flex-wrap gap-2">
+                        {analysis.suggestedSearchKeywords?.map(keyword => (
+                            <span key={keyword} className="bg-sky-500/20 text-sky-300 text-xs px-2 py-1 rounded-full">{keyword}</span>
+                        )) || <span className="text-sm text-gray-400">N/A</span>}
+                    </div>
+                </div>
+            </div>
+            ) : ( <p className="text-red-400 text-sm">{analysis?.error || "Analysis N/A."}</p> )}
+        </div>
+        <div className="mt-6 flex justify-end">
+          <button onClick={onClose} className="px-4 py-2 rounded-md bg-slate-600 hover:bg-slate-500 text-gray-200 font-medium transition-colors">Close</button>
+        </div>
+      </div>
+    </div>
+);
+
+const FitGapsAnalysisModal = ({ isLoading, onClose, analysis, candidateName, jobTitle }) => (
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-[100]">
+      <div className="bg-slate-800 shadow-2xl rounded-xl p-6 w-full max-w-2xl max-h-[90vh] flex flex-col">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-semibold text-sky-400 flex items-center">
+            <TrendingUp className="h-6 w-6 mr-2 text-purple-400"/> AI Fit, Gaps & Future Potential
+          </h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-200 transition-colors"><X size={24} /></button>
+        </div>
+        <div className="mb-3 p-3 bg-slate-700/50 rounded-md text-sm">
+            <p><span className="font-semibold text-sky-400/80">Candidate:</span> {candidateName}</p>
+            <p><span className="font-semibold text-sky-400/80">Current Target Role:</span> {jobTitle}</p>
+        </div>
+        <div className="overflow-y-auto custom-scrollbar max-h-[calc(90vh-200px)] pr-2">
+            {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-10 text-gray-400">
+                <Loader2 className="h-8 w-8 animate-spin mb-2 text-sky-500" /> Analyzing...
+            </div>
+            ) : analysis && !analysis.error ? (
+            <div className="space-y-6">
+                {analysis.currentJobAnalysis && (
+                    <section>
+                        <h4 className="font-semibold text-lg text-purple-300 mb-2 flex items-center">
+                            <Target size={20} className="mr-2"/> Analysis for Current Role: {jobTitle}
+                        </h4>
+                        <div className="p-3 rounded-md bg-slate-700/40 space-y-3">
+                            <p className="text-sm text-gray-300"><span className="font-medium text-purple-400/90">Overall Fit:</span> {analysis.currentJobAnalysis.overallFitAssessment || "N/A"}</p>
+                            <div>
+                                <p className="text-sm font-medium text-purple-400/90 mb-1">Skill Gaps:</p>
+                                {analysis.currentJobAnalysis.identifiedSkillGaps?.length > 0 ? (
+                                    <ul className="list-disc list-inside text-xs text-gray-400 pl-4 space-y-1">
+                                        {analysis.currentJobAnalysis.identifiedSkillGaps.map((gap, index) => (
+                                            <li key={index}><span className="text-sky-400">{gap.skill}:</span> {gap.gapDescription}</li>
+                                        ))}
+                                    </ul>
+                                ) : <p className="text-xs text-gray-400">No specific skill gaps identified.</p>}
+                            </div>
+                            <div>
+                                <p className="text-sm font-medium text-purple-400/90 mb-1">Development Pathways:</p>
+                                {analysis.currentJobAnalysis.suggestedDevelopmentPathways?.length > 0 ? (
+                                    <ul className="space-y-2">
+                                        {analysis.currentJobAnalysis.suggestedDevelopmentPathways.map((pathway, index) => (
+                                            <li key={index} className="p-2 rounded bg-slate-600/50">
+                                                <p className="font-semibold text-green-400 text-xs">{pathway.pathwayTitle}</p>
+                                                <p className="text-xs text-gray-300 my-0.5">{pathway.description}</p>
+                                                {pathway.relevantSkillsAddressed?.length > 0 && (
+                                                    <p className="text-xs text-gray-500">Addresses: {pathway.relevantSkillsAddressed.join(', ')}</p>
+                                                )}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : <p className="text-xs text-gray-400">No specific pathways suggested.</p>}
+                            </div>
+                        </div>
+                    </section>
+                )}
+                {analysis.futurePotentialProjection && (
+                    <section className="mt-6 pt-4 border-t border-slate-700">
+                        <h4 className="font-semibold text-lg text-green-300 mb-2 flex items-center">
+                            <Gauge size={20} className="mr-2"/> Future Potential Projection
+                        </h4>
+                        <div className="p-3 rounded-md bg-slate-700/40 space-y-2">
+                            <p className="text-sm"><span className="font-medium text-green-400/90">Suggested Future Role:</span> {analysis.futurePotentialProjection.suggestedFutureRole || "N/A"}</p>
+                            <p className="text-sm"><span className="font-medium text-green-400/90">Projected Timeframe:</span> {analysis.futurePotentialProjection.futureRoleTimeframe || "N/A"}</p>
+                            <p className="text-sm"><span className="font-medium text-green-400/90">Future Potential Score:</span> <span className="font-bold text-xl text-green-400">{analysis.futurePotentialProjection.futurePotentialScore || "N/A"}</span>/100</p>
+                            <p className="text-sm"><span className="font-medium text-green-400/90">Rationale:</span> {analysis.futurePotentialProjection.futurePotentialRationale || "N/A"}</p>
+                        </div>
+                    </section>
+                )}
+            </div>
+            ) : ( <p className="text-red-400 text-sm">{analysis?.error || "Fit/Gaps analysis N/A."}</p> )}
+        </div>
+        <div className="mt-6 flex justify-end">
+          <button onClick={onClose} className="px-4 py-2 rounded-md bg-slate-600 hover:bg-slate-500 text-gray-200 font-medium transition-colors">Close</button>
+        </div>
+      </div>
+    </div>
+);
+
+const CareerTrajectoryModal = ({ isLoading, onClose, analysisData, internalCandidates, selectedCandidateId, onSelectCandidate, targetGoal, onSetTargetGoal, onAnalyze }) => {
+    return (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-[100]">
+            <div className="bg-slate-800 shadow-2xl rounded-xl p-6 w-full max-w-3xl max-h-[90vh] flex flex-col">
+                <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-xl font-semibold text-sky-400 flex items-center">
+                        <Rocket className="h-6 w-6 mr-2 text-green-400"/> AI Career Trajectory Explorer
+                    </h3>
+                    <button onClick={onClose} className="text-gray-400 hover:text-gray-200 transition-colors"><X size={24} /></button>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label htmlFor="candidateSelect" className="block text-sm font-medium text-sky-300/80 mb-1">Select Internal Candidate:</label>
+                        <select id="candidateSelect" value={selectedCandidateId} onChange={(e) => onSelectCandidate(e.target.value)}
+                            className="w-full p-2 rounded-md bg-slate-700 border border-slate-600 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none">
+                            <option value="">-- Select Candidate --</option>
+                            {internalCandidates.map(c => <option key={c.id} value={c.id}>{c.name} ({c.currentRole})</option>)}
+                        </select>
+                    </div>
+                    <div>
+                        <label htmlFor="targetGoalInput" className="block text-sm font-medium text-sky-300/80 mb-1">Target Career Goal:</label>
+                        <input id="targetGoalInput" type="text" placeholder="e.g., Head of Data Science" value={targetGoal} onChange={(e) => onSetTargetGoal(e.target.value)}
+                            className="w-full p-2 rounded-md bg-slate-700 border border-slate-600 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none" />
+                    </div>
+                </div>
+                <button onClick={onAnalyze} disabled={isLoading || !selectedCandidateId || !targetGoal}
+                    className="w-full mb-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold py-2.5 px-4 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    {isLoading ? <Loader2 className="h-5 w-5 mr-2 animate-spin"/> : <Sparkles className="h-5 w-5 mr-2 text-yellow-300"/>} Analyze Trajectory
+                </button>
+                <div className="overflow-y-auto custom-scrollbar max-h-[calc(90vh-300px)] pr-2 space-y-6">
+                    {isLoading && !analysisData && ( 
+                        <div className="flex flex-col items-center justify-center py-10 text-gray-400">
+                            <Loader2 className="h-8 w-8 animate-spin mb-2 text-sky-500" /> Analyzing trajectory...
+                        </div>
+                    )}
+                    {analysisData && !analysisData.error && (
+                        <>
+                            <div className="p-4 bg-slate-700/30 rounded-lg">
+                                <h4 className="font-semibold text-lg text-green-300 mb-2 flex items-center">
+                                    <Target size={20} className="mr-2"/> Trajectory for {analysisData.candidateName} towards {analysisData.targetRole}
+                                </h4>
+                                <p className="text-sm text-gray-300">{analysisData.trajectoryOverallAssessment || "N/A."}</p>
+                            </div>
+                            {analysisData.suggestedMilestones?.length > 0 ? (
+                                analysisData.suggestedMilestones.map((milestone, index) => (
+                                    <div key={index} className="p-4 bg-slate-700/50 rounded-lg shadow-md">
+                                        <h5 className="font-semibold text-md text-sky-300 mb-2 flex items-center">
+                                            <MapPin size={18} className="mr-2 text-sky-400"/> Milestone {index + 1}: {milestone.milestoneRole}
+                                        </h5>
+                                        <p className="text-xs text-gray-400 mb-2 flex items-center"><CalendarDays size={14} className="mr-1.5"/> Timeframe: {milestone.timeframeEstimate || "N/A"}</p>
+                                        <div className="mb-2">
+                                            <p className="text-sm font-medium text-purple-300 mb-1">Skills to Develop:</p>
+                                            <ul className="list-disc list-inside text-xs text-gray-300 pl-4">{milestone.keySkillsToDevelop?.map(skill => <li key={skill}>{skill}</li>) || <li>N/A</li>}</ul>
+                                        </div>
+                                        <div className="mb-2">
+                                            <p className="text-sm font-medium text-purple-300 mb-1">Experience to Gain:</p>
+                                            <p className="text-xs text-gray-300">{milestone.experienceToGain || "N/A"}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-medium text-purple-300 mb-1">Suggested Learning:</p>
+                                            <ul className="list-disc list-inside text-xs text-gray-300 pl-4">{milestone.suggestedLearning?.map(learning => <li key={learning}>{learning}</li>) || <li>N/A</li>}</ul>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : <p className="text-sm text-gray-400">No milestones suggested or N/A.</p>}
+                        </>
+                    )}
+                    {analysisData && analysisData.error && (<p className="text-red-400 text-sm">{analysisData.error}</p>)}
+                </div>
+                <div className="mt-auto pt-6 flex justify-end">
+                    <button onClick={onClose} className="px-4 py-2 rounded-md bg-slate-600 hover:bg-slate-500 text-gray-200 font-medium transition-colors">Close</button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const HiddenGemDeepDiveModal = ({ isLoading, onClose, analysis, candidateName, jobTitle }) => (
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-[100]">
+      <div className="bg-slate-800 shadow-2xl rounded-xl p-6 w-full max-w-2xl max-h-[90vh] flex flex-col">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-semibold text-sky-400 flex items-center">
+            <Diamond className="h-6 w-6 mr-2 text-amber-400"/> Hidden Gem Deep Dive
+          </h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-200 transition-colors"><X size={24} /></button>
+        </div>
+        <div className="mb-3 p-3 bg-slate-700/50 rounded-md text-sm">
+            <p><span className="font-semibold text-sky-400/80">Candidate:</span> {candidateName}</p>
+            <p><span className="font-semibold text-sky-400/80">Target Role:</span> {jobTitle}</p>
+        </div>
+        <div className="overflow-y-auto custom-scrollbar max-h-[calc(90vh-200px)] pr-2">
+            {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-10 text-gray-400">
+                <Loader2 className="h-8 w-8 animate-spin mb-2 text-sky-500" /> Analyzing Gem Potential...
+            </div>
+            ) : analysis && !analysis.error ? (
+            <div className="space-y-5">
+                <div>
+                    <h4 className="font-semibold text-lg text-amber-300 mb-1 flex items-center">
+                        <Sparkles size={18} className="mr-2"/> Gem Rationale
+                    </h4>
+                    <p className="text-sm text-gray-300 bg-slate-700/30 p-3 rounded-md">{analysis.gemRationale || "N/A"}</p>
+                </div>
+                <div>
+                    <h4 className="font-semibold text-lg text-amber-300 mb-2 flex items-center">
+                        <Zap size={18} className="mr-2"/> Transferable Skills Analysis
+                    </h4>
+                    {analysis.transferableSkillsAnalysis?.length > 0 ? (
+                        <ul className="space-y-3">
+                            {analysis.transferableSkillsAnalysis.map((item, index) => (
+                                <li key={index} className="p-3 rounded-md bg-slate-700/30">
+                                    <p className="font-semibold text-sky-400">{item.skill}</p>
+                                    <p className="text-xs text-gray-400 mt-0.5 mb-1"><span className="font-medium text-gray-500">Evidence:</span> {item.candidateEvidence}</p>
+                                    <p className="text-xs text-gray-300"><span className="font-medium text-gray-500">Relevance to Job:</span> {item.relevanceToJob}</p>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : <p className="text-sm text-gray-400">No specific transferable skills highlighted.</p>}
+                </div>
+                <div>
+                    <h4 className="font-semibold text-lg text-amber-300 mb-1 flex items-center">
+                        <Lightbulb size={18} className="mr-2"/> Leveraging Suggestions
+                    </h4>
+                    <p className="text-sm text-gray-300 bg-slate-700/30 p-3 rounded-md">{analysis.leveragingSuggestions || "N/A"}</p>
+                </div>
+                <div>
+                    <h4 className="font-semibold text-lg text-amber-300 mb-1 flex items-center">
+                       <Brain size={18} className="mr-2" /> Unconventional Fit Rationale
+                    </h4>
+                    <p className="text-sm text-gray-300 bg-slate-700/30 p-3 rounded-md">{analysis.unconventionalFitRationale || "N/A"}</p>
+                </div>
+            </div>
+            ) : ( <p className="text-red-400 text-sm">{analysis?.error || "Deep dive analysis N/A."}</p> )}
+        </div>
+        <div className="mt-auto pt-6 flex justify-end">
+          <button onClick={onClose} className="px-4 py-2 rounded-md bg-slate-600 hover:bg-slate-500 text-gray-200 font-medium transition-colors">Close</button>
+        </div>
+      </div>
+    </div>
+);
+
+const ReEngagementAlertsModal = ({ isLoading, onClose, alerts }) => (
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-[100]">
+      <div className="bg-slate-800 shadow-2xl rounded-xl p-6 w-full max-w-2xl max-h-[90vh] flex flex-col">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-semibold text-sky-400 flex items-center">
+            <BellRing className="h-6 w-6 mr-2 text-indigo-400"/> Re-engagement Alerts
+          </h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-200 transition-colors"><X size={24} /></button>
+        </div>
+        <div className="overflow-y-auto custom-scrollbar max-h-[calc(90vh-150px)] pr-2">
+            {isLoading ? ( 
+            <div className="flex flex-col items-center justify-center py-10 text-gray-400">
+                <Loader2 className="h-8 w-8 animate-spin mb-2 text-sky-500" /> Loading alerts...
+            </div>
+            ) : alerts && alerts.length > 0 ? (
+            <div className="space-y-4">
+                {alerts.map((alert, index) => (
+                    <div key={index} className="p-4 bg-slate-700/50 rounded-lg shadow">
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <h4 className="font-semibold text-lg text-indigo-300">{alert.candidate.name}</h4>
+                                <p className="text-xs text-gray-400">Now a strong match for: <span className="font-medium text-sky-400">{alert.job.title}</span></p>
+                            </div>
+                            <span className={`font-bold text-lg ${alert.newScore > 75 ? 'text-green-400' : 'text-yellow-400'}`}>
+                                Score: {alert.newScore}%
+                            </span>
+                        </div>
+                        <p className="text-sm text-gray-300 mt-2">{alert.reason}</p>
+                        <p className="text-xs text-gray-500 mt-1">Original Skills: {alert.candidate.originalSkills?.join(', ') || 'N/A'}</p>
+                        <p className="text-xs text-gray-500">Current Skills (Simulated): {alert.candidate.skills.join(', ')}</p>
+                        <button
+                            onClick={() => {
+                                const modal = document.createElement('div');
+                                Object.assign(modal.style, { position: 'fixed', left: '0', top: '0', width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: '300' });
+                                modal.innerHTML = `<div style="background: #334155; padding: 20px; border-radius: 8px; text-align: center; color: white;"><p>Simulated: Contacting ${alert.candidate.name} about ${alert.job.title}</p><button id="customContactOkButton" style="background: #0ea5e9; color: white; padding: 8px 16px; border: none; border-radius: 4px; margin-top: 10px; cursor: pointer;">OK</button></div>`;
+                                document.body.appendChild(modal);
+                                document.getElementById('customContactOkButton').onclick = () => { document.body.removeChild(modal); };
+                            }}
+                            className="mt-3 bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-1.5 px-3 rounded-md text-xs"
+                        >
+                            Contact Candidate (Simulated)
+                        </button>
+                    </div>
+                ))}
+            </div>
+            ) : ( <p className="text-center text-gray-400 py-8">No new re-engagement alerts from the latest simulation.</p> )}
+        </div>
+        <div className="mt-6 flex justify-end">
+          <button onClick={onClose} className="px-4 py-2 rounded-md bg-slate-600 hover:bg-slate-500 text-gray-200 font-medium transition-colors">Close</button>
+        </div>
+      </div>
+    </div>
+);
+
+
+const GlobalStyles = () => (
+  <style>{`
+    .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: rgba(51, 65, 85, 0.5); border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(14, 165, 233, 0.6); border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(14, 165, 233, 0.8); }
+  `}</style>
+);
+
+export default function TalentSonarApp() {
+  return (
+    <>
+      <GlobalStyles />
+      <App />
+    </>
+  );
+}
+
